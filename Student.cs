@@ -8,9 +8,8 @@ namespace Diary
 {
     public class Student
     {
-        int Id;
-        string FirstName;
-        string LastName; 
-
+        public int Id;
+        public string FirstName;
+        public string LastName;
     }
 }

@@ -15,15 +15,31 @@ namespace Diary
     public partial class Main : Form
     {
 
-        private string _filePath = $@"{Environment.CurrentDirectory}\students.txt";
+        //private string _filePath1 = $@"{Environment.CurrentDirectory}\students.txt";
         // lub możemy użyć klasy combine, który sam sklei ścieżkę
-        private string _filePath1 = Path.Combine(Environment.CurrentDirectory,"students.txt");
+        private string _filePath = Path.Combine(Environment.CurrentDirectory,"students.txt");
 
 
         public Main()
         {
             InitializeComponent();
 
+            //var students = new List<Student>();
+            // może też być z nawiasami po Student
+            // students.Add( new Student() { Id = 1, FirstName = "Jan", LastName = "Kowalski" });
+            //students.Add(new Student { Id = 1, FirstName = "Jan", LastName = "Nowak"});
+            //students.Add(new Student { Id = 1, FirstName = "Alfred", LastName = "Kowalski"});
+            //students.Add(new Student { Id = 1, FirstName = "Joanna", LastName = "Bartkowiak"});
+            //SerializeToFile2(students);
+
+            var students = DeserializeFromFile();
+
+            
+            foreach(var item in students)
+            {
+                MessageBox.Show($"{item.FirstName} {item.LastName}");
+            }
+            
 
             /*
              string filePath = $@"{Path.GetDirectoryName(Application.ExecutablePath)}\..\..\NowyPlik2.txt";
@@ -91,6 +107,12 @@ namespace Diary
 
         public List<Student> DeserializeFromFile()
         {
+            if (!File.Exists(_filePath))
+            {
+                MessageBox.Show("Brak pliku");
+                return new List<Student>();
+            }
+
             var serializer = new XmlSerializer(typeof(List<Student>));
 
             using (var streamReader = new StreamReader(_filePath))
