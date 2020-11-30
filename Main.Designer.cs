@@ -93,7 +93,8 @@ namespace Diary
             this.dgvDiary.Name = "dgvDiary";
             this.dgvDiary.RowHeadersWidth = 62;
             this.dgvDiary.RowTemplate.Height = 28;
-            this.dgvDiary.Size = new System.Drawing.Size(1353, 846);
+            this.dgvDiary.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvDiary.Size = new System.Drawing.Size(2026, 846);
             this.dgvDiary.TabIndex = 4;
             // 
             // Main
@@ -101,7 +102,7 @@ namespace Diary
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(1414, 1033);
+            this.ClientSize = new System.Drawing.Size(2087, 1033);
             this.Controls.Add(this.dgvDiary);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.btnDelete);

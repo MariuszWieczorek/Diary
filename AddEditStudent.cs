@@ -15,16 +15,24 @@ namespace Diary
     public partial class AddEditStudent : Form
     {
 
-        private string _filePath = Path.Combine(Environment.CurrentDirectory, "students.txt");
+        private int _studentId;
+        private FileHelper<List<Student>> _fileHelper = new FileHelper<List<Student>>(Program.FilePath);
 
-     
-       // przekazujemy parametr domyślny
+        //private FileHelper<List<Student>> _fileHelper2 =
+        //new FileHelper<List<Student>>(this._filePath);
+
+
+        // przekazujemy parametr id, domyślną wartością jest 0
+        // będzie tu zawarta logika biznesowa dla dodawania i edytowania
         public AddEditStudent(int id = 0)
         {
+            _studentId = id;
+
+            
             InitializeComponent();
             if (id != 0)
             {
-                var students = DeserializeFromFile();
+                var students = _fileHelper.DeserializeFromFile();
                 var student = students
                    .FirstOrDefault(x => x.Id == id);
 
@@ -40,40 +48,54 @@ namespace Diary
                 tbPolishLang.Text = student.PolishLang;
                 tbForeignLang.Text = student.ForeignLang;
                 tbTechnology.Text = student.Technology;
+
+                Text = "Edycja Ucznia";
+                StartPosition = FormStartPosition.CenterScreen;
+       
+
             }
+            else
+            {
+                this.Text = "Dodawanie Ucznia";
+            }
+            
+            tbFirstName.Select();
         }
 
-        // pobieramy jeszcze raz Listę
+
+
+        // wspólna logika przycisku zatwierdź
+        // pobieramy jeszcze raz Listę wszystkich uczniów
+        // jeżeli edytujamy, to usuwamy z listy ucznia któego dane będziemy edytować
+        // później dodamy tego ucznia i zapiszemy w pliku
+        // robimy tak aby było jak najwięcej wspólnej logiki
 
         private void btnConfirm_Click(object sender, EventArgs e)
         {
-            var students = DeserializeFromFile();
-            
-            // Wykorzystujemy LINQ
-            // Sortujemy malejąco
-            // zczytujemny pierwszy rekord jeżeli istnieje, jeżeli nie to NULL
-            var studentWithHighestId = students
-                    .OrderByDescending(x => x.Id).FirstOrDefault();
+            var students = _fileHelper.DeserializeFromFile();
 
-            //var studentId = 0;
+            // pole _studentId aby mieć dostęp do parametru przekazanego do konstruktora
+            if (_studentId != 0)
+            {
+                students.RemoveAll(x => x.Id == _studentId);
+            }
+            else
+            {
 
-            //if (studentWithHighestId == null)
-            //{
-            //    studentId = 1;
-            //}
-            //else
-            //{
-            //    studentId = studentWithHighestId.Id + 1;
-            //}
+                // Wykorzystujemy LINQ
+                // Sortujemy malejąco
+                // zczytujemny pierwszy rekord jeżeli istnieje, jeżeli nie to NULL
+                var studentWithHighestId = students
+                        .OrderByDescending(x => x.Id).FirstOrDefault();
 
-            // równorzędny zapis
-            var studentId = studentWithHighestId == null ? 1 : studentWithHighestId.Id + 1;
+                _studentId = studentWithHighestId == null ? 1 : studentWithHighestId.Id + 1;
+            }            
 
             // przypisujemy wartości z pól tekstowych do obiektu
 
             var student = new Student
             {
-                Id = studentId,
+                Id = _studentId,
                 FirstName = tbFirstName.Text,
                 LastName = tbLastName.Text,
                 Comments = rtbComments.Text,
@@ -85,50 +107,16 @@ namespace Diary
             };
 
             students.Add(student);
-            SerializeToFile2(students);
+            _fileHelper.SerializeToFile2(students);
             Close();
         }
 
 
-        // Zapisujemy Listę studentów do pliku wersja z użyciem USING
-        public void SerializeToFile2(List<Student> students)
+        
+
+        private void btnCancel_Click(object sender, EventArgs e)
         {
-            // przekazujemy listę obiektów typu Student
-            // typeof() - zwróci typ podczas kompilacji
-            // The typeof is an operator keyword which is used to get a type at the compile-time.
-            var serializer = new XmlSerializer(typeof(List<Student>));
-            StreamWriter streamWriter = null;
-
-            // jeżeli w using jest deklaracja jakiegoś obiektu
-            // to zawsze na tym obiekcie zostanie automatycznie wywołana metoda Dispose
-            using (streamWriter = new StreamWriter(_filePath))
-            {
-                // stream jest to klasa, która zapewnia nam transfer bajtów
-                serializer.Serialize(streamWriter, students);
-                streamWriter.Close();
-            }
-        }
-
-        // Odczytuje Listę obiektów z pliku w tym przypadku z XML'a
-        public List<Student> DeserializeFromFile()
-        {
-            if (!File.Exists(_filePath))
-            {
-                MessageBox.Show("Brak pliku");
-                return new List<Student>();
-            }
-
-            var serializer = new XmlSerializer(typeof(List<Student>));
-
-            using (var streamReader = new StreamReader(_filePath))
-            {
-                // stream jest to klasa, która zapewnia nam transfer bajtów
-                // Deserializer zwraca typ obiekt, musimy go rzutować na listę studentów
-                var students = (List<Student>)serializer.Deserialize(streamReader);
-                streamReader.Close();
-                return students;
-            }
-
+            Close();
         }
     }
 }
