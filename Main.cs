@@ -26,6 +26,8 @@ namespace Diary
             //PopulateStudents();
             //DeserializeAndShowStudents();
 
+            var students = DeserializeFromFile();
+            dgvDiary.DataSource = students;
         }
 
         // Zapisujemy Listę studentów do pliku wersja z użyciem TRY ... CATCH
@@ -112,15 +114,15 @@ namespace Diary
             MessageBox.Show(text);
         }
         
-        // wypełnienie listy studentów przykłądowymi danymi
+        // wypełnienie listy studentów przykładowymi danymi
         public void PopulateStudents()
         {
             var students = new List<Student>();
             // w tym przypadku może też być z nawiasami po new Student() lub bez 
             students.Add(new Student() { Id = 1, FirstName = "Jan", LastName = "Kowalski" });
-            students.Add(new Student { Id = 1, FirstName = "Jan", LastName = "Nowak" });
-            students.Add(new Student { Id = 1, FirstName = "Alfred", LastName = "Kowalski" });
-            students.Add(new Student { Id = 1, FirstName = "Joanna", LastName = "Bartkowiak" });
+            students.Add(new Student { Id = 2, FirstName = "Jan", LastName = "Nowak" });
+            students.Add(new Student { Id = 3, FirstName = "Alfred", LastName = "Kowalski" });
+            students.Add(new Student { Id = 4, FirstName = "Joanna", LastName = "Bartkowiak" });
             SerializeToFile2(students);
         }
 
@@ -140,11 +142,24 @@ namespace Diary
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-
+            // okno jest zwykłą klasą więc tworzymy jego instancję
+            var addEditStudent = new AddEditStudent();
+            addEditStudent.ShowDialog();
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
+            // sprawdzamy, czy jakiś wiersz został zaznaczony
+            if (dgvDiary.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Nie zaznaczono żadnej pozycji");
+                return;
+            }
+
+            // okno jest zwykłą klasą więc tworzymy jego instancję
+            // F12 na nazwie klasy
+            var addEditStudent = new AddEditStudent( Convert.ToInt32(dgvDiary.SelectedRows[0].Cells[0].Value));
+            addEditStudent.ShowDialog();
 
         }
 
@@ -155,7 +170,8 @@ namespace Diary
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-
+            var students = DeserializeFromFile();
+            dgvDiary.DataSource = students;
         }
     
     
