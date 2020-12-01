@@ -21,14 +21,17 @@ namespace Diary
 
         public Main()
         {
+          
             InitializeComponent();
             Text = "Dziennik Ucznia";
             
             //PopulateStudents();
             //DeserializeAndShowStudents();
+            
             RefreshDiary();
             SetColumnHeader();
             SetColumnProperities();
+            
             // TestLinq();
             // TestInheritance();
             // wykorzystanie kompozycji
@@ -36,15 +39,15 @@ namespace Diary
             // student.Address.City = "Szczecin";
 
             // 
-            var messages1 = new DisplayMessage(DisplayMessage1);
-            var messages2 = new Action<string>(DisplayMessage2);
+            //var messages1 = new DisplayMessage(DisplayMessage1);
+            //var messages2 = new Action<string>(DisplayMessage2);
 
             //messages1("aaaa");
 
 
-            MetodUseDelegate2(messages2);
+            //MetodUseDelegate2(messages2);
 
-        }
+        } 
 
 
         // metoda pasująca sygnaturą do zeefiniowanego delegata
@@ -186,12 +189,13 @@ namespace Diary
 
             // Predefiniowane delegaty
             // Funk przyjmuje metody które zwracają wartość
-            // Action przyjmuje metody które nie zwracają
+            // Action przyjmuje metody które nie zwracają żadnej wartości
 
-            // dodamy własne zdarzenie które będzie powiadamiaćokno główne gdy zostanie dodaby użytkownik do pliku
+            // dodamy własne zdarzenie które będzie powiadamiać okno główne gdy zostanie dodany użytkownik do pliku
             // dzięki temu będziemy mogli odświeżyć sobie dataGrid
             // aby zdefiniować event potrzebujemy najpierw delegata
 
+             
 
         }
 
@@ -247,8 +251,18 @@ namespace Diary
         private void RefreshDiary()
         {
             var students = _fileHelper.DeserializeFromFile();
-            //students = students.OrderBy(x => x.Id);
-            dgvDiary.DataSource = students.OrderBy(x => x.Id).ToList();
+            var xstudents = students.OrderBy(x => x.Id)
+                .Select(x => new {Id = x.Id,FirstName = x.FirstName, LastName = x.LastName
+                ,Math = x.Math
+                ,Physics = x.Physics
+                ,Technology = x.Technology
+                ,PolishLang = x.PolishLang
+                ,ForeignLang = x.ForeignLang
+                ,Comments = x.Comments
+                }).ToList();
+
+            dgvDiary.DataSource = xstudents;
+            
         }
 
         private void SetColumnHeader()
@@ -307,7 +321,25 @@ namespace Diary
         {
             // okno jest zwykłą klasą więc tworzymy jego instancję
             var addEditStudent = new AddEditStudent();
+            
+            // event 4
+            // subskrybujemy zdarzenie
+            // definiujemy jakia metoda ma się uruchomićw momencie wystąpienia zdarzenia
+            addEditStudent.StudentAdded += AddEditStudent_StudentAdd;
+
             addEditStudent.ShowDialog();
+
+            // event 5
+            // dobrą praktyką jest odsubskryptowanie się od zdarzenia
+            addEditStudent.StudentAdded -= AddEditStudent_StudentAdd;
+        }
+
+        // event 5
+        // definicja metody 
+        private void AddEditStudent_StudentAdd()
+        {
+            MessageBox.Show("AddEditStudent_StudentAdd()");
+            RefreshDiary();
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -360,11 +392,6 @@ namespace Diary
             RefreshDiary();
         }
 
-        // zdarzenia
-        private void btnAdd_MouseEnter(object sender, EventArgs e)
-        {
-            MessageBox.Show("Mouse Enter");
-        }
         // w MainDesigner.cs został dodany kod jak poniżej
         // this.btnAdd.MouseEnter += new System.EventHandler(this.btnAdd_MouseEnter);
         // czyli do zdefiniowanego zdarzenie MouseEnter w klasie Button dodajemy 

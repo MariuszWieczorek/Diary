@@ -15,10 +15,19 @@ namespace Diary
     public partial class AddEditStudent : Form
     {
 
-        // eventy 1  definiujemy delegata
+        
+        // event 1 aby zdefiniować event potrebujem najpierw delegata
         public delegate void MySimpleDelegate();
         // event 2 definiujemy event
         public event MySimpleDelegate StudentAdded;
+        // event 3 dobrą praktyką jest pisanie metod pomocniczych
+        // które będziemy wywoływać w miejscach w których ma być wyzwolone zdarzenie
+
+        private void OnStudentAdded()
+        {
+            StudentAdded?.Invoke();
+        }
+
 
         private int _studentId;
         private Student _student;
@@ -41,6 +50,9 @@ namespace Diary
     
             tbFirstName.Select();
         }
+
+
+
 
         /// <summary>
         /// Metoda pobierająca dane o studencie
@@ -104,6 +116,13 @@ namespace Diary
             }
 
             AddNewStudentToList(students);
+
+            // event 4
+            // wywołujemy metodę pomocniczą przed zamknięciem ekranu
+            // gdy metoda zostanie wywołana wyzwoli zdarzenie StudentAdded
+            // która powiadomi o tym zdarzeniu swoich subskrybentów
+
+            OnStudentAdded();
             Close();
         }
 
