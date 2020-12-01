@@ -16,6 +16,7 @@ namespace Diary
     {
 
         private int _studentId;
+        private Student _student;
         private FileHelper<List<Student>> _fileHelper = new FileHelper<List<Student>>(Program.FilePath);
 
         //private FileHelper<List<Student>> _fileHelper2 =
@@ -27,53 +28,66 @@ namespace Diary
         public AddEditStudent(int id = 0)
         {
             _studentId = id;
-
-            
             InitializeComponent();
-            if (id != 0)
-            {
-                var students = _fileHelper.DeserializeFromFile();
-                var student = students
-                   .FirstOrDefault(x => x.Id == id);
-
-                if (students == null)
-                    throw new Exception($"Brak użytkownika o numerze Id = {id}");
-
-                tbId.Text = student.Id.ToString();
-                tbFirstName.Text = student.FirstName;
-                tbLastName.Text = student.LastName;
-                rtbComments.Text = student.Comments;
-                tbMath.Text = student.Math;
-                tbPhysics.Text = student.Physics;
-                tbPolishLang.Text = student.PolishLang;
-                tbForeignLang.Text = student.ForeignLang;
-                tbTechnology.Text = student.Technology;
-
-                Text = "Edycja Ucznia";
-                StartPosition = FormStartPosition.CenterScreen;
-       
-
-            }
-            else
-            {
-                this.Text = "Dodawanie Ucznia";
-            }
-            
+            GetStudentData();
+          
+            StartPosition = FormStartPosition.CenterScreen;
+            this.Text = "Dodawanie Ucznia";
+    
             tbFirstName.Select();
         }
 
+        /// <summary>
+        /// Metoda pobierająca dane o studencie
+        /// </summary>
+        private void GetStudentData()
+        {
+            if (_studentId != 0)
+            {
+                Text = "Edycja Danych Ucznia";
 
+                var students = _fileHelper.DeserializeFromFile();
+                _student = students
+                   .FirstOrDefault(x => x.Id == _studentId);
 
-        // wspólna logika przycisku zatwierdź
-        // pobieramy jeszcze raz Listę wszystkich uczniów
-        // jeżeli edytujamy, to usuwamy z listy ucznia któego dane będziemy edytować
-        // później dodamy tego ucznia i zapiszemy w pliku
-        // robimy tak aby było jak najwięcej wspólnej logiki
+                if (_student == null)
+                    throw new Exception($"Brak użytkownika o numerze Id = {_studentId}");
 
+                FillTextBoxes();
+            }
+        }
+        
+        /// <summary>
+        /// Uzupałniamy pola tekstowe wczytanymi danymi
+        /// </summary>
+        private void FillTextBoxes()
+        {
+            tbId.Text = _student.Id.ToString();
+            tbFirstName.Text = _student.FirstName;
+            tbLastName.Text = _student.LastName;
+            rtbComments.Text = _student.Comments;
+            tbMath.Text = _student.Math;
+            tbPhysics.Text = _student.Physics;
+            tbPolishLang.Text = _student.PolishLang;
+            tbForeignLang.Text = _student.ForeignLang;
+            tbTechnology.Text = _student.Technology;
+        }
+
+        
+        /// <summary>
+        /// Zatwierdzanie zmian
+        /// wspólna logika przycisku zatwierdź dla Edycji i Dodania Nowego Ucznia
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConfirm_Click(object sender, EventArgs e)
         {
             var students = _fileHelper.DeserializeFromFile();
 
+            // pobieramy jeszcze raz Listę wszystkich uczniów
+            // jeżeli edytujamy, to usuwamy z listy ucznia któego dane będziemy edytować
+            // później dodamy tego ucznia i zapiszemy w pliku
+            // robimy tak aby było jak najwięcej wspólnej logiki
             // pole _studentId aby mieć dostęp do parametru przekazanego do konstruktora
             if (_studentId != 0)
             {
@@ -81,18 +95,22 @@ namespace Diary
             }
             else
             {
+                AssignIdToNewStudent(students);
+            }
 
-                // Wykorzystujemy LINQ
-                // Sortujemy malejąco
-                // zczytujemny pierwszy rekord jeżeli istnieje, jeżeli nie to NULL
-                var studentWithHighestId = students
-                        .OrderByDescending(x => x.Id).FirstOrDefault();
+            AddNewStudentToList(students);
+            Close();
+        }
 
-                _studentId = studentWithHighestId == null ? 1 : studentWithHighestId.Id + 1;
-            }            
-
-            // przypisujemy wartości z pól tekstowych do obiektu
-
+        /// <summary>
+        /// Dodajemy studenta do listy
+        /// przypisujemy wartości z pól tekstowych do obiektu
+        /// obiekt dodajemy do listy
+        /// na koniec wykonujemy serializację
+        /// </summary>
+        /// <param name="students"></param>
+        private void AddNewStudentToList(List<Student> students)
+        {
             var student = new Student
             {
                 Id = _studentId,
@@ -108,11 +126,25 @@ namespace Diary
 
             students.Add(student);
             _fileHelper.SerializeToFile2(students);
-            Close();
         }
 
 
-        
+
+        /// <summary>
+        /// Nadajemy Id nowemu uczniowi 
+        /// Wykorzystujemy LINQ, Sortujemy malejąco
+        /// zczytujemny pierwszy rekord jeżeli istnieje, jeżeli nie to NULL
+        /// </summary>
+        /// <param name="students"></param>
+        private void AssignIdToNewStudent(List<Student> students)
+        {
+            var studentWithHighestId = students
+                    .OrderByDescending(x => x.Id).FirstOrDefault();
+
+            _studentId = studentWithHighestId == null ? 1 : studentWithHighestId.Id + 1;
+        }
+
+
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
