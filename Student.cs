@@ -23,14 +23,31 @@ namespace Diary
     }
 
 
+    internal class Student2
+    {
+
+    }
+
+    public class Address
+    {
+        public string City { get; set; }
+        public string Street { get; set; }
+    }
+
     // typ pochodny, podtyp
     public class Student : Person
     {
+        public Student()
+        {
+            Address = new Address();
+        }
+
         public string Math { get; set; }
         public string Physics { get; set; }
         public string Technology { get; set; }
         public string PolishLang { get; set; }
         public string ForeignLang { get; set; }
+        public Address Address { get; set; }
 
         public string GetStudentInfo()
         {
@@ -41,6 +58,8 @@ namespace Diary
         {
             return $"Student: {FirstName} {LastName} oceny z matematyki {Math}";
         }
+
+
     }
 
     public class Teacher : Person

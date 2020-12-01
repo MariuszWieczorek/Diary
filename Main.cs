@@ -15,24 +15,60 @@ namespace Diary
     public partial class Main : Form
     {
 
-      
+        private delegate void DisplayMessage(string message);
         private FileHelper<List<Student>> _fileHelper = 
             new FileHelper<List<Student>>(Program.FilePath);
 
         public Main()
         {
             InitializeComponent();
+            Text = "Dziennik Ucznia";
+            
             //PopulateStudents();
             //DeserializeAndShowStudents();
-
             RefreshDiary();
             SetColumnHeader();
             SetColumnProperities();
             // TestLinq();
-            TestInheritance();
+            // TestInheritance();
+            // wykorzystanie kompozycji
+            // var student = new Student();
+            // student.Address.City = "Szczecin";
 
-            this.Text = "Dziennik Ucznia";
+            // 
+            var messages1 = new DisplayMessage(DisplayMessage1);
+            var messages2 = new Action<string>(DisplayMessage2);
+
+            //messages1("aaaa");
+
+
+            MetodUseDelegate2(messages2);
+
         }
+
+
+        // metoda pasująca sygnaturą do zeefiniowanego delegata
+        public void DisplayMessage1(string message)
+        {
+            MessageBox.Show($"Metoda 1 {message}");
+        }
+
+        public void DisplayMessage2(string message)
+        {
+            MessageBox.Show($"Metoda 2 {message}");
+        }
+
+        // metody przyjmujące jako parametr delegat
+        private void MetodUseDelegate1(DisplayMessage mess)
+        {
+            mess("wykorzystanie własnego delegata");
+        }
+
+        private void MetodUseDelegate2(Action<string> mess)
+        {
+            mess("wykorzystanie delegata Action");
+        }
+
 
         /// <summary>
         /// zabawy z dziedziczeniem
@@ -43,9 +79,8 @@ namespace Diary
             student1.Id = 1;
             student1.FirstName = "Marek";
 
-            var person1 = new Person();
-            person1.Id = 2;
-            person1.FirstName = "Jan";
+            Person person1;
+
 
             // obiekt pochodny możesz przypisać do obiektu bazowego
 
@@ -126,9 +161,36 @@ namespace Diary
             // nie może być kontruktora
 
             // Hermetyzacja nazywana również enkapsulacją polega na ukrywaniu pewnych danych
-            // modyfikatory dotępu
+            // możemy ukryć szczegóły implementacji , wrażliwe dane 
+            // pomagać się zabezpieczyć przed niepożądanym zachowaniem
+            // uzyskujemy ją dzięki stosowaniu:
+            // modyfikatory dotępu: public, private, protected, internal
             // właściwości
-            // tylko do odczytu
+            // const - nie można zmieniać,
+            // readonly - może być przypisane podczas deklaracji lub w konstruktorze, w metodzie już nie można zmieniać
+
+            // kompozycja
+            // technika podobnie jak dziedziczenie pozwalająca na ponowne wykorzystanie kodu
+            // używamy innej klasy w naszej klasie
+
+            // kiedy kompozycja a kiedy dziedziczenie
+            // dziedziczenie gdy klasa jest szczególnym przypadkiem innej klasy
+            // np samochód jest szczególnym przypadkiem klasy pojazd
+
+            // kompozycja gdy klasa powinna zawirać dodatkową funkcjonalność zawartoś w innej klasie
+            // np klasa samochód zawiera w sobie klasę silnik
+
+            // Delegaty to Obiekty, któe wskazują na dowolne metody 
+            // do delegata możemy przypisać metody pasujące do niego sygnaturą
+            // możemy go przekazać jako parametr do funkcji
+
+            // Predefiniowane delegaty
+            // Funk przyjmuje metody które zwracają wartość
+            // Action przyjmuje metody które nie zwracają
+
+            // dodamy własne zdarzenie które będzie powiadamiaćokno główne gdy zostanie dodaby użytkownik do pliku
+            // dzięki temu będziemy mogli odświeżyć sobie dataGrid
+            // aby zdefiniować event potrzebujemy najpierw delegata
 
 
         }
@@ -297,7 +359,16 @@ namespace Diary
         {
             RefreshDiary();
         }
-    
-    
+
+        // zdarzenia
+        private void btnAdd_MouseEnter(object sender, EventArgs e)
+        {
+            MessageBox.Show("Mouse Enter");
+        }
+        // w MainDesigner.cs został dodany kod jak poniżej
+        // this.btnAdd.MouseEnter += new System.EventHandler(this.btnAdd_MouseEnter);
+        // czyli do zdefiniowanego zdarzenie MouseEnter w klasie Button dodajemy 
+        // za pomocą operatora += metody, która ma zostać wyzwolona
+
     }
 }

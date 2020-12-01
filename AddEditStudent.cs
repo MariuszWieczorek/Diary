@@ -15,6 +15,11 @@ namespace Diary
     public partial class AddEditStudent : Form
     {
 
+        // eventy 1  definiujemy delegata
+        public delegate void MySimpleDelegate();
+        // event 2 definiujemy event
+        public event MySimpleDelegate StudentAdded;
+
         private int _studentId;
         private Student _student;
         private FileHelper<List<Student>> _fileHelper = new FileHelper<List<Student>>(Program.FilePath);
