@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -15,19 +16,19 @@ namespace Diary
     public partial class AddEditStudent : Form
     {
 
-        
-        // event 1 aby zdefiniować event potrebujem najpierw delegata
-        public delegate void MySimpleDelegate();
-        // event 2 definiujemy event
-        public event MySimpleDelegate StudentAdded;
-        // event 3 dobrą praktyką jest pisanie metod pomocniczych
-        // które będziemy wywoływać w miejscach w których ma być wyzwolone zdarzenie
 
+        // event – krok 1: aby zdefiniować event potrzebujemy najpierw delegata
+        public delegate void MySimpleDelegate();
+
+        // event – krok 2: definiujemy event
+        public event MySimpleDelegate StudentAddedEvent;
+
+        // event – krok 3: dobrą praktyką jest pisanie metod pomocniczych
+        // które będziemy wywoływać w miejscach w których ma być wyzwolone zdarzenie
         private void OnStudentAdded()
         {
-            StudentAdded?.Invoke();
+            StudentAddedEvent?.Invoke();
         }
-
 
         private int _studentId;
         private Student _student;
@@ -44,15 +45,12 @@ namespace Diary
             _studentId = id;
             InitializeComponent();
             GetStudentData();
-          
+
             StartPosition = FormStartPosition.CenterScreen;
             this.Text = "Dodawanie Ucznia";
-    
+
             tbFirstName.Select();
         }
-
-
-
 
         /// <summary>
         /// Metoda pobierająca dane o studencie
@@ -73,7 +71,7 @@ namespace Diary
                 FillTextBoxes();
             }
         }
-        
+
         /// <summary>
         /// Uzupałniamy pola tekstowe wczytanymi danymi
         /// </summary>
@@ -90,14 +88,14 @@ namespace Diary
             tbTechnology.Text = _student.Technology;
         }
 
-        
+
         /// <summary>
         /// Zatwierdzanie zmian
         /// wspólna logika przycisku zatwierdź dla Edycji i Dodania Nowego Ucznia
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnConfirm_Click(object sender, EventArgs e)
+        private async void btnConfirm_Click(object sender, EventArgs e)
         {
             var students = _fileHelper.DeserializeFromFile();
 
@@ -117,14 +115,48 @@ namespace Diary
 
             AddNewStudentToList(students);
 
-            // event 4
+            // event – krok 4
             // wywołujemy metodę pomocniczą przed zamknięciem ekranu
             // gdy metoda zostanie wywołana wyzwoli zdarzenie StudentAdded
             // która powiadomi o tym zdarzeniu swoich subskrybentów
 
             OnStudentAdded();
+            await LongProcessAsync();
             Close();
         }
+
+
+        private void LongProcess()
+        {
+            Thread.Sleep(3000);
+        }
+
+
+        // zwracaną wartością musi być zawsze Task - zamiast void
+        // Task<int> zamiast int
+        // wywołujemy metodę z klasy statycznej Run, która przyjmuje delegata Action
+        private async Task LongProcessAsync()
+        {
+            await Task.Run(() =>
+            {
+                Thread.Sleep(3000);
+            });
+        }
+
+        // zapis równoznaczny z powyższym
+        private async Task LongProcessAsync2()
+        {
+            var action = new Action(ActionDelegateMetod);
+            await Task.Run(action);
+        }
+
+        // równoważny zapis do
+        private void ActionDelegateMetod()
+        {
+            Thread.Sleep(3000);
+        }
+
+
 
         /// <summary>
         /// Dodajemy studenta do listy

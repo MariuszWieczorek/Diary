@@ -42,7 +42,7 @@ namespace Diary
             this.btnAdd.BackColor = System.Drawing.Color.YellowGreen;
             this.btnAdd.ForeColor = System.Drawing.Color.Black;
             this.btnAdd.Location = new System.Drawing.Point(71, 23);
-            this.btnAdd.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnAdd.Margin = new System.Windows.Forms.Padding(2);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(77, 32);
             this.btnAdd.TabIndex = 0;
@@ -54,7 +54,7 @@ namespace Diary
             // 
             this.btnEdit.BackColor = System.Drawing.Color.PeachPuff;
             this.btnEdit.Location = new System.Drawing.Point(162, 23);
-            this.btnEdit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnEdit.Margin = new System.Windows.Forms.Padding(2);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(77, 32);
             this.btnEdit.TabIndex = 1;
@@ -66,7 +66,7 @@ namespace Diary
             // 
             this.btnDelete.BackColor = System.Drawing.Color.LightPink;
             this.btnDelete.Location = new System.Drawing.Point(246, 22);
-            this.btnDelete.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(2);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(77, 32);
             this.btnDelete.TabIndex = 2;
@@ -78,7 +78,7 @@ namespace Diary
             // 
             this.btnRefresh.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.btnRefresh.Location = new System.Drawing.Point(347, 21);
-            this.btnRefresh.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnRefresh.Margin = new System.Windows.Forms.Padding(2);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(77, 32);
             this.btnRefresh.TabIndex = 3;
@@ -94,7 +94,7 @@ namespace Diary
             this.dgvDiary.BackgroundColor = System.Drawing.Color.White;
             this.dgvDiary.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDiary.Location = new System.Drawing.Point(28, 99);
-            this.dgvDiary.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.dgvDiary.Margin = new System.Windows.Forms.Padding(2);
             this.dgvDiary.Name = "dgvDiary";
             this.dgvDiary.RowHeadersWidth = 62;
             this.dgvDiary.RowTemplate.Height = 28;
@@ -113,9 +113,10 @@ namespace Diary
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.btnAdd);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Main";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Main_FormClosed);
             this.Load += new System.EventHandler(this.Main_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvDiary)).EndInit();
             this.ResumeLayout(false);

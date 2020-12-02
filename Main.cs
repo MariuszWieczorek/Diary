@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using System.Threading;
+using Diary.Properties;
 
 namespace Diary
 {
@@ -19,11 +21,27 @@ namespace Diary
         private FileHelper<List<Student>> _fileHelper = 
             new FileHelper<List<Student>>(Program.FilePath);
 
+        public bool isMaximize 
+        { get
+            {
+                return Settings.Default.isMaximize;
+            }
+          set
+            {
+                Settings.Default.isMaximize = value;
+            }
+        }
+
         public Main()
         {
           
             InitializeComponent();
-            Text = "Dziennik Ucznia";
+             Text = "Dziennik Ucznia";
+
+            if (isMaximize)
+            {
+                WindowState = FormWindowState.Maximized;
+            }
             
             //PopulateStudents();
             //DeserializeAndShowStudents();
@@ -267,6 +285,16 @@ namespace Diary
 
         private void SetColumnHeader()
         {
+            dgvDiary.Columns[nameof(Student.Id)].DisplayIndex = 0;
+            dgvDiary.Columns[nameof(Student.FirstName)].DisplayIndex = 1;
+            dgvDiary.Columns[nameof(Student.LastName)].DisplayIndex = 2;
+            dgvDiary.Columns[nameof(Student.Comments)].DisplayIndex = 3;
+            dgvDiary.Columns[nameof(Student.Math)].DisplayIndex = 4;
+            dgvDiary.Columns[nameof(Student.Physics)].DisplayIndex = 5;
+            dgvDiary.Columns[nameof(Student.Technology)].DisplayIndex = 6;
+            dgvDiary.Columns[nameof(Student.PolishLang)].DisplayIndex = 7;
+            dgvDiary.Columns[nameof(Student.ForeignLang)].DisplayIndex = 8;
+
             dgvDiary.Columns[0].HeaderText = "Numer";
             dgvDiary.Columns[1].HeaderText = "Imię";
             dgvDiary.Columns[2].HeaderText = "Nazwisko";
@@ -276,6 +304,8 @@ namespace Diary
             dgvDiary.Columns[6].HeaderText = "Technologia";
             dgvDiary.Columns[7].HeaderText = "Język Polski";
             dgvDiary.Columns[8].HeaderText = "Język Obcy";
+
+
         }
 
         private void SetColumnProperities()
@@ -283,14 +313,10 @@ namespace Diary
             dgvDiary.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvDiary.RowHeadersVisible = false;
             dgvDiary.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            // ustawić Anchor na Right, Top, Left, Down we właściwościach aby Grid rozszerzał się wraz z oknem
+            dgvDiary.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         }
 
-        
-
-
-     
-        
+               
         // wypełnienie listy studentów przykładowymi danymi
         public void PopulateStudents()
         {
@@ -321,21 +347,30 @@ namespace Diary
         {
             // okno jest zwykłą klasą więc tworzymy jego instancję
             var addEditStudent = new AddEditStudent();
-            
-            // event 4
-            // subskrybujemy zdarzenie
-            // definiujemy jakia metoda ma się uruchomićw momencie wystąpienia zdarzenia
-            addEditStudent.StudentAdded += AddEditStudent_StudentAdd;
 
+            // event krok 6:
+            // subskrybujemy zdarzenie - do zdarzenia zdefiniowanego w oknie w którym ono wystąpi
+            // przypisujemy metodę ma się uruchomić w momencie wystąpienia zdarzenia
+            addEditStudent.StudentAddedEvent += AddEditStudent_StudentAdd;
+
+            addEditStudent.FormClosing += AddEditStudent_FormClosing;
+
+            // okno w którym wystąpi zdarzenie
             addEditStudent.ShowDialog();
 
-            // event 5
+            // event krok 7:
             // dobrą praktyką jest odsubskryptowanie się od zdarzenia
-            addEditStudent.StudentAdded -= AddEditStudent_StudentAdd;
+            addEditStudent.StudentAddedEvent -= AddEditStudent_StudentAdd;
         }
 
-        // event 5
-        // definicja metody 
+        private void AddEditStudent_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MessageBox.Show("AddEditStudent_FormClosing");
+            RefreshDiary();
+        }
+
+        // event krok 5:
+        // definicja metody, którą za chwilę przypiszemy do zdarzenia 
         private void AddEditStudent_StudentAdd()
         {
             MessageBox.Show("AddEditStudent_StudentAdd()");
@@ -353,9 +388,13 @@ namespace Diary
 
             // okno jest zwykłą klasą więc tworzymy jego instancję
             // F12 na nazwie klasy
-            var addEditStudent = new AddEditStudent( Convert.ToInt32(dgvDiary.SelectedRows[0].Cells[0].Value));
+            int id = Convert.ToInt32(dgvDiary.SelectedRows[0].Cells[0].Value);
+            var addEditStudent = new AddEditStudent(id);
+            addEditStudent.FormClosing += AddEditStudent_FormClosing;
             addEditStudent.ShowDialog();
-            RefreshDiary();
+            addEditStudent.FormClosing -= AddEditStudent_FormClosing;
+            dgvDiary.CurrentCell = dgvDiary.Rows[id].Cells[0]; //czyli wiersz z indexem 3
+
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -392,10 +431,17 @@ namespace Diary
             RefreshDiary();
         }
 
-        // w MainDesigner.cs został dodany kod jak poniżej
-        // this.btnAdd.MouseEnter += new System.EventHandler(this.btnAdd_MouseEnter);
-        // czyli do zdefiniowanego zdarzenie MouseEnter w klasie Button dodajemy 
-        // za pomocą operatora += metody, która ma zostać wyzwolona
+        private void Main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (WindowState == FormWindowState.Maximized)
+                Settings.Default.isMaximize = true;
+            else
+                Settings.Default.isMaximize = false;
+
+            Settings.Default.Save();
+        }
+
+
 
     }
 }
