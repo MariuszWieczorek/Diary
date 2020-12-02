@@ -32,11 +32,14 @@ namespace Diary
 
         private int _studentId;
         private Student _student;
+
         private FileHelper<List<Student>> _fileHelper = new FileHelper<List<Student>>(Program.FilePath);
 
         //private FileHelper<List<Student>> _fileHelper2 =
         //new FileHelper<List<Student>>(this._filePath);
 
+                
+        public List<string> GroupOfStudentsNames = Groups.GroupOfStudents.Select(x => x.Nazwa).ToList();
 
         // przekazujemy parametr id, domyślną wartością jest 0
         // będzie tu zawarta logika biznesowa dla dodawania i edytowania
@@ -86,6 +89,11 @@ namespace Diary
             tbPolishLang.Text = _student.PolishLang;
             tbForeignLang.Text = _student.ForeignLang;
             tbTechnology.Text = _student.Technology;
+            chkAdditionalClasses.Checked = _student.AdditionalClasses;
+            
+            cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboGroupOfStudent.DataSource = GroupOfStudentsNames;
+            
         }
 
 
@@ -121,7 +129,7 @@ namespace Diary
             // która powiadomi o tym zdarzeniu swoich subskrybentów
 
             OnStudentAdded();
-            await LongProcessAsync();
+            // await LongProcessAsync();
             Close();
         }
 
@@ -177,8 +185,10 @@ namespace Diary
                 Physics = tbPhysics.Text,
                 PolishLang = tbPolishLang.Text,
                 ForeignLang = tbForeignLang.Text,
-                Technology = tbTechnology.Text
-            };
+                Technology = tbTechnology.Text,
+                AdditionalClasses = chkAdditionalClasses.Checked,
+                GroupOfStudents = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString()
+        };
 
             students.Add(student);
             _fileHelper.SerializeToFile2(students);

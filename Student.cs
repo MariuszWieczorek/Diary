@@ -47,7 +47,8 @@ namespace Diary
         public string Technology { get; set; }
         public string PolishLang { get; set; }
         public string ForeignLang { get; set; }
-        public bool additionalClasses { get; set; }
+        public bool AdditionalClasses { get; set; }
+        public string GroupOfStudents { get; set; }
         public Address Address { get; set; }
 
         public string GetStudentInfo()

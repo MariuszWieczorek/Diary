@@ -20,6 +20,8 @@ namespace Diary
         private delegate void DisplayMessage(string message);
         private FileHelper<List<Student>> _fileHelper = 
             new FileHelper<List<Student>>(Program.FilePath);
+        
+        public List<string> GroupOfStudentsNames = Groups.GroupOfStudents.Select(x => x.Nazwa).ToList();
 
         public bool isMaximize 
         { get
@@ -38,6 +40,10 @@ namespace Diary
             InitializeComponent();
              Text = "Dziennik Ucznia";
 
+            cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboGroupOfStudent.DataSource = GroupOfStudentsNames;
+            cboGroupOfStudent.Visible = false;
+
             if (isMaximize)
             {
                 WindowState = FormWindowState.Maximized;
@@ -50,19 +56,16 @@ namespace Diary
             SetColumnHeader();
             SetColumnProperities();
             
-            // TestLinq();
-            // TestInheritance();
+            // Other.TestLinq();
+            // Other.TestInheritance();
+            
             // wykorzystanie kompozycji
             // var student = new Student();
             // student.Address.City = "Szczecin";
 
-            // 
             //var messages1 = new DisplayMessage(DisplayMessage1);
             //var messages2 = new Action<string>(DisplayMessage2);
-
             //messages1("aaaa");
-
-
             //MetodUseDelegate2(messages2);
 
         } 
@@ -91,185 +94,18 @@ namespace Diary
         }
 
 
-        /// <summary>
-        /// zabawy z dziedziczeniem
-        /// </summary>
-        private static void TestInheritance()
-        {
-            var student1 = new Student();
-            student1.Id = 1;
-            student1.FirstName = "Marek";
-
-            Person person1;
-
-
-            // obiekt pochodny możesz przypisać do obiektu bazowego
-
-            person1 = student1;
-            // MessageBox.Show(person1.Id.ToString());
-
-            // Najpierw wywoływany jest konstruktor klasy pochodnej, później bazowej 
-
-            // sealed - zamykamy klasę na dziedziczenie, nigdy nie będzie ona nadrzędną do żadnego typu
-            // polimorfizm - wielopostaciowość
-            // statyczny - przeciążania funkcji i operatorów
-            // nie można przeciążyć metody, która różni się tylko zwracanym typem
-            // dynamiczny 
-            // powiązany z metodami wirtualnymi i abstrakcyjnymi, przesłanianie i nadpisywanie funkcji
-            // dzięki temu, że student i teacher dziedziczą po tej samej klasie bazowej możemy je dodać do wspólnej listy
-
-            var list3 = new List<Person>
-            {
-                new Student { Id = 1, FirstName = "StudentImię", LastName = "StudentNazwisko", Math = "5,2,4" },
-                new Teacher { Id = 2, FirstName = "NauczycielImię", LastName = "NauczycielNazwisko" },
-            };
-
-            // item jest klasy Person, więc mamy dostęp tylko do elementów wspólnych
-            // aby odwołać się do GetInfo musimy rzutować na ten Obiekt
-            // przaydatne dwa słowa kluczowe
-            // IS - aby sprawdzić czy możemy rzutować na ten obiekt
-            // AS - aby wykonać to rzutowanie
-            // takie podejście jest bardzo problematyczne, wprowadz duży bałagan w kodzie
-            // wywołanie metod na podstawie zrzuconego typu jest bardzo złe
-            foreach(var item in list3)
-            {
-                if(item is Student)
-                    MessageBox.Show((item as Student).GetStudentInfo());
-                else if (item is Teacher)
-                    MessageBox.Show((item as Teacher).GetTeacherInfo());
-                
-            }
-
-            // to samo z wykorzystaniem polimorfizmu
-            // każdy z obiektów ma taką samą metodę, króra zostanie wywołana automatycznie bez sprawdzania obiektu
-            foreach (var item in list3)
-            {
-                    MessageBox.Show( item.GetInfo());
-
-            }
-
-            // Abstrakcje
-            // W c# Abstrakcje realizujemy za pomocą klas abstrakcyjnych lub za pomocą interfejsów
-            // Nie interesują nas strzegóły danej implementacji, lecz to co jest udostępniane na zewnątrz
-            // mamy jakiś kontrakt i wiemy, że wszystkie implementacje muszą ją realizować, nie interesuje nas w jaki sposób
-            // wprowadzanie abstrakcji 
-            // loose coupling
-            // hight cohesion 
-            // luźne powiązanie - nie uzależniamy się od danej implementacji (np: możemy zapisywać do formatu XML lub do JSON lub do bazy danych)
-            // są bardziej rozszerzalne
-            // mogą być łatwiej testowane
-            // klasa abstrakcyjna powstała po to by być klasą bazową do innych klas
-            // nie można utworzyć obiektu klasy abstrakcyjnej
-            // klasa abstrakcyjna może zawierać same deklaracje metod, lub ich definicje (implementacje)
-            // metoda abstrakcyjna - mamy pewność, że każda klasa pochodna musi zaimplementować własną wersję tej metody
-            // są z natury wirtualne, nie mogą zawierać ciała
-            // metoda abstrakcyjna musi być napisana w klasie abstrakcyjnej i musi być przysłonięta w klasie dziedziczącej przez override
-
-            // interfejs w odróżnieniu od klas abstrakcyjnych umożliwia całkowite oddzielenie szczegółów implementacji od udostępnionych elementów
-            // wersje <  c#8.0 - same deklaracje metod bez ich definicji
-            // wersje >= c#8.0 - mogą być również definicje metod
-
-            // w klasie abstrakcyjnej
-            // słowo kluczowe abstract
-            // klasa może dziedziczyć tylko po jednej klasie abstrakcyjnej
-            // mogą zostać oznaczone atrybuty dostępu
-            // może być konstruktor domyślny
-
-            // w interfejsach
-            // słowo kluczowe interface
-            // klasa może implementować dowolną liczbę interfejsów
-            // składowe nie mogą zostać oznaczone atrybutami dostępu, niejawnie jest to public
-            // nie może być kontruktora
-
-            // Hermetyzacja nazywana również enkapsulacją polega na ukrywaniu pewnych danych
-            // możemy ukryć szczegóły implementacji , wrażliwe dane 
-            // pomagać się zabezpieczyć przed niepożądanym zachowaniem
-            // uzyskujemy ją dzięki stosowaniu:
-            // modyfikatory dotępu: public, private, protected, internal
-            // właściwości
-            // const - nie można zmieniać,
-            // readonly - może być przypisane podczas deklaracji lub w konstruktorze, w metodzie już nie można zmieniać
-
-            // kompozycja
-            // technika podobnie jak dziedziczenie pozwalająca na ponowne wykorzystanie kodu
-            // używamy innej klasy w naszej klasie
-
-            // kiedy kompozycja a kiedy dziedziczenie
-            // dziedziczenie gdy klasa jest szczególnym przypadkiem innej klasy
-            // np samochód jest szczególnym przypadkiem klasy pojazd
-
-            // kompozycja gdy klasa powinna zawirać dodatkową funkcjonalność zawartoś w innej klasie
-            // np klasa samochód zawiera w sobie klasę silnik
-
-            // Delegaty to Obiekty, któe wskazują na dowolne metody 
-            // do delegata możemy przypisać metody pasujące do niego sygnaturą
-            // możemy go przekazać jako parametr do funkcji
-
-            // Predefiniowane delegaty
-            // Funk przyjmuje metody które zwracają wartość
-            // Action przyjmuje metody które nie zwracają żadnej wartości
-
-            // dodamy własne zdarzenie które będzie powiadamiać okno główne gdy zostanie dodany użytkownik do pliku
-            // dzięki temu będziemy mogli odświeżyć sobie dataGrid
-            // aby zdefiniować event potrzebujemy najpierw delegata
-
-             
-
-        }
-
-        private static void TestLinq()
-        {
-            var list1 = new List<int>() { -2, 432, 22, 5, 85 };
-
-            // Zapytanie LINQ - Query Syntax
-            // samo LINQ zwróci nam interfejs IEnumerable
-            // gdy chcemy aby została zwrócona lista dodajemy .ToList()
-            var list2 = (from x in list1
-                         where x > 10
-                         orderby x descending
-                         select x).ToList();
-
-            // Wyrażenie LINQ = Metod Syntax
-            // z użyciem wyrażeń Lambda
-
-            var list3 = list1.Where(x => x > 10).OrderByDescending(x => x).ToList();
-
-            var students = new List<Student>();
-
-            var students1 = from x in students
-                            select x.Id;
-
-            var students2 = students.Select(x => x.Id);
-
-            
-            // czy wszystkie elementy są większe od zera
-            var allPositives = list1.All(x => x > 0);
-            MessageBox.Show(allPositives.ToString());
-
-            // cz jakikolwiek element > 100
-            var anyNumberBiggerThan100 = list1.Any(x => x > 100);
-            MessageBox.Show(anyNumberBiggerThan100.ToString());
-
-            // czy zawiera 10
-            var contain10 = list1.Contains(10);
-
-            var sum = list1.Sum();
-            var count = list1.Count();
-            var average = list1.Average();
-            var min = list1.Min();
-            var max = list1.Max();
-            // pierwszy element, może być warunek
-            var firstElement = list1.First(x => x > 10 );
 
 
 
-            return;
-        }
 
         private void RefreshDiary()
         {
             var students = _fileHelper.DeserializeFromFile();
-            var xstudents = students.OrderBy(x => x.Id)
+            var nameOfStudent = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString();
+            
+
+        var xstudents = students
+                .OrderBy(x => x.Id)
                 .Select(x => new {Id = x.Id,FirstName = x.FirstName, LastName = x.LastName
                 ,Math = x.Math
                 ,Physics = x.Physics
@@ -277,12 +113,34 @@ namespace Diary
                 ,PolishLang = x.PolishLang
                 ,ForeignLang = x.ForeignLang
                 ,Comments = x.Comments
+                ,AdditionalClasses = x.AdditionalClasses
+                ,GroupOfStudents = x.GroupOfStudents
                 }).ToList();
 
+
+            if(chkGroupOfStudents.Checked)
+            { 
+            xstudents = xstudents
+                .Where(x => x.GroupOfStudents == nameOfStudent)
+                .OrderBy(x => x.Id)
+                .Select(x => new {Id = x.Id,FirstName = x.FirstName, LastName = x.LastName
+                ,Math = x.Math
+                ,Physics = x.Physics
+                ,Technology = x.Technology
+                ,PolishLang = x.PolishLang
+                ,ForeignLang = x.ForeignLang
+                ,Comments = x.Comments
+                ,AdditionalClasses = x.AdditionalClasses
+                ,GroupOfStudents = x.GroupOfStudents
+                }).ToList();
+            }
+
             dgvDiary.DataSource = xstudents;
-            
         }
 
+        /// <summary>
+        /// Ustawienie tytułów kolumn oraz przypisanie pól do kolumn w DataGridView
+        /// </summary>
         private void SetColumnHeader()
         {
             dgvDiary.Columns[nameof(Student.Id)].DisplayIndex = 0;
@@ -294,6 +152,8 @@ namespace Diary
             dgvDiary.Columns[nameof(Student.Technology)].DisplayIndex = 6;
             dgvDiary.Columns[nameof(Student.PolishLang)].DisplayIndex = 7;
             dgvDiary.Columns[nameof(Student.ForeignLang)].DisplayIndex = 8;
+            dgvDiary.Columns[nameof(Student.AdditionalClasses)].DisplayIndex = 9;
+            dgvDiary.Columns[nameof(Student.GroupOfStudents)].DisplayIndex = 10;
 
             dgvDiary.Columns[0].HeaderText = "Numer";
             dgvDiary.Columns[1].HeaderText = "Imię";
@@ -304,10 +164,15 @@ namespace Diary
             dgvDiary.Columns[6].HeaderText = "Technologia";
             dgvDiary.Columns[7].HeaderText = "Język Polski";
             dgvDiary.Columns[8].HeaderText = "Język Obcy";
+            dgvDiary.Columns[9].HeaderText = "Dodatkowe Kursy";
+            dgvDiary.Columns[10].HeaderText = "Grupa Studentów";
 
 
         }
 
+        /// <summary>
+        /// Ustawienie cech DataGridView
+        /// </summary>
         private void SetColumnProperities()
         {
             dgvDiary.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -316,18 +181,20 @@ namespace Diary
             dgvDiary.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         }
 
-               
-        // wypełnienie listy studentów przykładowymi danymi
+        /// <summary>
+        /// wypełnienie listy studentów przykładowymi danymi
+        /// </summary>        
         public void PopulateStudents()
         {
             var students = new List<Student>();
             // w tym przypadku może też być z nawiasami po new Student() lub bez 
-            students.Add(new Student() { Id = 1, FirstName = "Jan", LastName = "Kowalski" });
+            students.Add(new Student { Id = 1, FirstName = "Jan", LastName = "Kowalski", Address = new Address { City = "Szczecin" } });
             students.Add(new Student { Id = 2, FirstName = "Jan", LastName = "Nowak" });
             students.Add(new Student { Id = 3, FirstName = "Alfred", LastName = "Kowalski" });
             students.Add(new Student { Id = 4, FirstName = "Joanna", LastName = "Bartkowiak" });
             _fileHelper.SerializeToFile2(students);
         }
+
 
         public void DeserializeAndShowStudents()
         {
@@ -338,11 +205,12 @@ namespace Diary
             }
         }
 
-        private void Main_Load(object sender, EventArgs e)
-        {
 
-        }
-
+        /// <summary>
+        /// Dodawanie Ucznia do Listy
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
             // okno jest zwykłą klasą więc tworzymy jego instancję
@@ -363,19 +231,8 @@ namespace Diary
             addEditStudent.StudentAddedEvent -= AddEditStudent_StudentAdd;
         }
 
-        private void AddEditStudent_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            MessageBox.Show("AddEditStudent_FormClosing");
-            RefreshDiary();
-        }
 
-        // event krok 5:
-        // definicja metody, którą za chwilę przypiszemy do zdarzenia 
-        private void AddEditStudent_StudentAdd()
-        {
-            MessageBox.Show("AddEditStudent_StudentAdd()");
-            RefreshDiary();
-        }
+        
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
@@ -393,7 +250,7 @@ namespace Diary
             addEditStudent.FormClosing += AddEditStudent_FormClosing;
             addEditStudent.ShowDialog();
             addEditStudent.FormClosing -= AddEditStudent_FormClosing;
-            dgvDiary.CurrentCell = dgvDiary.Rows[id].Cells[0]; //czyli wiersz z indexem 3
+            dgvDiary.CurrentCell = dgvDiary.Rows[id-1].Cells[0]; //czyli wiersz z indexem 3
 
         }
 
@@ -431,6 +288,26 @@ namespace Diary
             RefreshDiary();
         }
 
+
+        private void AddEditStudent_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // MessageBox.Show("AddEditStudent_FormClosing");
+            RefreshDiary();
+        }
+                
+        // event krok 5:
+        // definicja metody, którą za chwilę przypiszemy do zdarzenia 
+        private void AddEditStudent_StudentAdd()
+        {
+            // MessageBox.Show("AddEditStudent_StudentAdd()");
+            RefreshDiary();
+        }
+
+        /// <summary>
+        /// Zapamiętanie ustawienia okna przy zamknięciu aplikacji
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Main_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (WindowState == FormWindowState.Maximized)
@@ -441,7 +318,24 @@ namespace Diary
             Settings.Default.Save();
         }
 
+        private void Main_Load(object sender, EventArgs e)
+        {
 
+        }
 
+        private void chkGroupOfStudents_Click(object sender, EventArgs e)
+        {
+            if (chkGroupOfStudents.Checked)
+                cboGroupOfStudent.Visible = true;
+            else
+                cboGroupOfStudent.Visible = false;
+            
+            RefreshDiary();
+        }
+
+        private void cboGroupOfStudent_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RefreshDiary();
+        }
     }
 }
