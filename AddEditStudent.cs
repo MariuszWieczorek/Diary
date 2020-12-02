@@ -93,7 +93,7 @@ namespace Diary
             
             cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
             cboGroupOfStudent.DataSource = GroupOfStudentsNames;
-            
+            cboGroupOfStudent.SelectedItem = _student.GroupOfStudents;
         }
 
 
