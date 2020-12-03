@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Threading;
 using Diary.Properties;
+using Diary.Model;
 
 namespace Diary
 {
@@ -41,7 +42,9 @@ namespace Diary
              Text = "Dziennik Ucznia";
 
             cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboGroupOfStudent.DataSource = GroupOfStudentsNames;
+            cboGroupOfStudent.DataSource = Groups.GroupOfStudents;
+            cboGroupOfStudent.DisplayMember = "Nazwa";
+            cboGroupOfStudent.ValueMember = "Id";
             cboGroupOfStudent.Visible = false;
 
             if (isMaximize)
@@ -101,41 +104,59 @@ namespace Diary
         private void RefreshDiary()
         {
             var students = _fileHelper.DeserializeFromFile();
-            var nameOfStudent = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString();
+            var nameOfStudentGroup = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString();
             
+            var selectedGroupId = (cboGroupOfStudent.SelectedItem as GroupOfStudent).Id;
 
-        var xstudents = students
+
+            var studentsQueryable = students
                 .OrderBy(x => x.Id)
-                .Select(x => new {Id = x.Id,FirstName = x.FirstName, LastName = x.LastName
-                ,Math = x.Math
-                ,Physics = x.Physics
-                ,Technology = x.Technology
-                ,PolishLang = x.PolishLang
-                ,ForeignLang = x.ForeignLang
-                ,Comments = x.Comments
-                ,AdditionalClasses = x.AdditionalClasses
-                ,GroupOfStudents = x.GroupOfStudents
-                }).ToList();
+                .Select(x => new 
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Math = x.Math,
+                    Physics = x.Physics,
+                    Technology = x.Technology,
+                    PolishLang = x.PolishLang,
+                    ForeignLang = x.ForeignLang,
+                    Comments = x.Comments,
+                    AdditionalClasses = x.AdditionalClasses,
+                    GroupOfStudentsId = x.GroupOfStudentsId,
+                    GroupOfStudents = x.GroupOfStudents,
+                }).AsQueryable();
 
 
-            if(chkGroupOfStudents.Checked)
+            var studentsQueryable2 = students
+            .Join(Groups.GroupOfStudents, left => left.GroupOfStudentsId, right => right.Id,
+               (left, right) => new { StudentColumns = left, GroupsColumns = right })
+            .Select(x => new 
             { 
-            xstudents = xstudents
-                .Where(x => x.GroupOfStudents == nameOfStudent)
-                .OrderBy(x => x.Id)
-                .Select(x => new {Id = x.Id,FirstName = x.FirstName, LastName = x.LastName
-                ,Math = x.Math
-                ,Physics = x.Physics
-                ,Technology = x.Technology
-                ,PolishLang = x.PolishLang
-                ,ForeignLang = x.ForeignLang
-                ,Comments = x.Comments
-                ,AdditionalClasses = x.AdditionalClasses
-                ,GroupOfStudents = x.GroupOfStudents
-                }).ToList();
+                Id = x.StudentColumns.Id,
+                FirstName = x.StudentColumns.FirstName,
+                Math = x.StudentColumns.Math,
+                Physics = x.StudentColumns.Physics,
+                Technology = x.StudentColumns.Technology,
+                PolishLang = x.StudentColumns.PolishLang,
+                ForeignLang = x.StudentColumns.ForeignLang,
+                Comments = x.StudentColumns.Comments,
+                AdditionalClasses = x.StudentColumns.AdditionalClasses,
+                GroupOfStudentsId = x.StudentColumns.GroupOfStudentsId,
+                GroupOfStudents = x.GroupsColumns.Nazwa,
+
+            }).AsQueryable();
+
+            // .Where(x => x.GroupOfStudents == nameOfStudent || !chkGroupOfStudents.Checked)
+
+
+            if (chkGroupOfStudents.Checked)
+            {
+              // studentsQueryable = studentsQueryable.Where(x => x.GroupOfStudents == nameOfStudentGroup);
+                 studentsQueryable = studentsQueryable.Where(x => x.GroupOfStudentsId == selectedGroupId);
             }
 
-            dgvDiary.DataSource = xstudents;
+            dgvDiary.DataSource = studentsQueryable.ToList();
         }
 
         /// <summary>
@@ -153,7 +174,8 @@ namespace Diary
             dgvDiary.Columns[nameof(Student.PolishLang)].DisplayIndex = 7;
             dgvDiary.Columns[nameof(Student.ForeignLang)].DisplayIndex = 8;
             dgvDiary.Columns[nameof(Student.AdditionalClasses)].DisplayIndex = 9;
-            dgvDiary.Columns[nameof(Student.GroupOfStudents)].DisplayIndex = 10;
+            dgvDiary.Columns[nameof(Student.GroupOfStudentsId)].DisplayIndex = 10;
+            dgvDiary.Columns[nameof(Student.GroupOfStudents)].DisplayIndex = 11;
 
             dgvDiary.Columns[0].HeaderText = "Numer";
             dgvDiary.Columns[1].HeaderText = "Imię";
@@ -165,7 +187,9 @@ namespace Diary
             dgvDiary.Columns[7].HeaderText = "Język Polski";
             dgvDiary.Columns[8].HeaderText = "Język Obcy";
             dgvDiary.Columns[9].HeaderText = "Dodatkowe Kursy";
-            dgvDiary.Columns[10].HeaderText = "Grupa Studentów";
+            dgvDiary.Columns[10].HeaderText = "Id Grupy";
+            dgvDiary.Columns[11].HeaderText = "Grupa Studentów";
+            
 
 
         }
@@ -192,7 +216,7 @@ namespace Diary
             students.Add(new Student { Id = 2, FirstName = "Jan", LastName = "Nowak" });
             students.Add(new Student { Id = 3, FirstName = "Alfred", LastName = "Kowalski" });
             students.Add(new Student { Id = 4, FirstName = "Joanna", LastName = "Bartkowiak" });
-            _fileHelper.SerializeToFile2(students);
+            _fileHelper.SerializeToFile(students);
         }
 
 
@@ -250,7 +274,7 @@ namespace Diary
             addEditStudent.FormClosing += AddEditStudent_FormClosing;
             addEditStudent.ShowDialog();
             addEditStudent.FormClosing -= AddEditStudent_FormClosing;
-            dgvDiary.CurrentCell = dgvDiary.Rows[id-1].Cells[0]; //czyli wiersz z indexem 3
+            dgvDiary.CurrentCell = dgvDiary.Rows[id-1].Cells[0]; //czyli wiersz z indexem id
 
         }
 
@@ -280,7 +304,7 @@ namespace Diary
         {
             var students = _fileHelper.DeserializeFromFile();
             students.RemoveAll(x => x.Id == id);
-            _fileHelper.SerializeToFile2(students);
+            _fileHelper.SerializeToFile(students);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)

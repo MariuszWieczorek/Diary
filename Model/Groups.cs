@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Diary
+namespace Diary.Model
 {
     public static class Groups
     {
         public static List<GroupOfStudent> GroupOfStudents = new List<GroupOfStudent>
         {
-           new GroupOfStudent { Id = 0, Nazwa = "        " },
+           new GroupOfStudent { Id = 0, Nazwa = "Brak Grupy" },
            new GroupOfStudent { Id = 1, Nazwa = "Klasa 1A" },
            new GroupOfStudent { Id = 2, Nazwa = "Klasa 1B" },
            new GroupOfStudent { Id = 3, Nazwa = "Klasa 2A" },

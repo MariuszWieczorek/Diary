@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Diary.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -57,6 +58,9 @@ namespace Diary
             this.Text = "Dodawanie Ucznia";
 
             tbFirstName.Select();
+
+            cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
+
         }
 
         /// <summary>
@@ -79,9 +83,16 @@ namespace Diary
             }
             else
             {
+
+                /*
                 cboGroupOfStudent.DataSource = GroupOfStudentsNames;
-                cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
                 cboGroupOfStudent.SelectedItem = 0;
+                */
+
+                cboGroupOfStudent.DataSource = Groups.GroupOfStudents;
+                cboGroupOfStudent.DisplayMember = "Nazwa";
+                cboGroupOfStudent.ValueMember = "Id";
+                cboGroupOfStudent.SelectedIndex = 0;
 
             }
         }
@@ -102,17 +113,27 @@ namespace Diary
             tbTechnology.Text = _student.Technology;
             chkAdditionalClasses.Checked = _student.AdditionalClasses;
             
-            cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
+            
+
+
+            //var selectedGroupId = (cboGroupOfStudent.SelectedItem as GroupOfStudent).Id;
+
+            cboGroupOfStudent.DataSource = Groups.GroupOfStudents;
+            cboGroupOfStudent.DisplayMember = "Nazwa";
+            cboGroupOfStudent.ValueMember = "Id";
+            cboGroupOfStudent.SelectedIndex = _student.GroupOfStudentsId;
+
+            /*
             cboGroupOfStudent.DataSource = GroupOfStudentsNames;
-
-
-
             if (string.IsNullOrEmpty(_student.GroupOfStudents))
             {
                 cboGroupOfStudent.SelectedItem = 0;
             }
             else
                 cboGroupOfStudent.SelectedItem = _student.GroupOfStudents;
+            */
+
+
 
 
         }
@@ -208,14 +229,21 @@ namespace Diary
                 ForeignLang = tbForeignLang.Text,
                 Technology = tbTechnology.Text,
                 AdditionalClasses = chkAdditionalClasses.Checked,
-                GroupOfStudents = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString()
+                GroupOfStudentsId = (cboGroupOfStudent.SelectedItem as GroupOfStudent).Id,
+                GroupOfStudents = (cboGroupOfStudent.SelectedItem as GroupOfStudent).Nazwa
         };
 
+            // GroupOfStudentsId = cboGroupOfStudent.SelectedIndex,
+            // lub
+            // GroupOfStudentsId = (cboGroupOfStudent.SelectedItem as GroupOfStudent).Id,
+            // tak w przypadku listy stringów
+            // GroupOfStudents   = cboGroupOfStudent.Items[cboGroupOfStudent.SelectedIndex].ToString()
+
             students.Add(student);
-            _fileHelper.SerializeToFile2(students);
+            _fileHelper.SerializeToFile(students);
         }
 
-
+        
 
         /// <summary>
         /// Nadajemy Id nowemu uczniowi 
