@@ -270,12 +270,14 @@ namespace Diary
             // okno jest zwykłą klasą więc tworzymy jego instancję
             // F12 na nazwie klasy
             int id = Convert.ToInt32(dgvDiary.SelectedRows[0].Cells[0].Value);
+            int rowIndex = dgvDiary.CurrentCell.RowIndex;
             var addEditStudent = new AddEditStudent(id);
             addEditStudent.FormClosing += AddEditStudent_FormClosing;
             addEditStudent.ShowDialog();
             addEditStudent.FormClosing -= AddEditStudent_FormClosing;
-            dgvDiary.CurrentCell = dgvDiary.Rows[id-1].Cells[0]; //czyli wiersz z indexem id
-
+            if (dgvDiary.RowCount >= (rowIndex + 1) )
+                dgvDiary.CurrentCell = dgvDiary.Rows[rowIndex].Cells[0]; //czyli wiersz z indexem id
+            
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
