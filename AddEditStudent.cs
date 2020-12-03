@@ -32,6 +32,7 @@ namespace Diary
 
         private int _studentId;
         private Student _student;
+        private bool _newRecord;
 
         private FileHelper<List<Student>> _fileHelper = new FileHelper<List<Student>>(Program.FilePath);
 
@@ -46,6 +47,9 @@ namespace Diary
         public AddEditStudent(int id = 0)
         {
             _studentId = id;
+            _newRecord = (id == 0) ? true : false;
+
+
             InitializeComponent();
             GetStudentData();
 
@@ -73,6 +77,13 @@ namespace Diary
 
                 FillTextBoxes();
             }
+            else
+            {
+                cboGroupOfStudent.DataSource = GroupOfStudentsNames;
+                cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
+                cboGroupOfStudent.SelectedItem = 0;
+
+            }
         }
 
         /// <summary>
@@ -93,7 +104,17 @@ namespace Diary
             
             cboGroupOfStudent.DropDownStyle = ComboBoxStyle.DropDownList;
             cboGroupOfStudent.DataSource = GroupOfStudentsNames;
-            cboGroupOfStudent.SelectedItem = _student.GroupOfStudents;
+
+
+
+            if (string.IsNullOrEmpty(_student.GroupOfStudents))
+            {
+                cboGroupOfStudent.SelectedItem = 0;
+            }
+            else
+                cboGroupOfStudent.SelectedItem = _student.GroupOfStudents;
+
+
         }
 
 
